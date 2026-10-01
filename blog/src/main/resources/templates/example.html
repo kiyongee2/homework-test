@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>타임리프 익히기</title>
+</head>
+<body>
+    <h2>타임리프 익히기</h2>
+    <p th:text="${#temporals.format(today, 'yyyy-MM-dd')}"></p>
+    <div th:object="${person}">
+        <p th:text="|이름: *{name}|"></p>
+        <p th:text="|나이: *{age}|"></p>
+        <p>취미</p>
+        <ul th:each="hobby : *{hobbies}">
+            <li th:text="${hobby}"></li>
+            <span th:if="${hobby == '독서'}">(대표 취미)</span>
+        </ul>
+    </div>
+    <!-- 1번 블로그 글을 보러 이동 -->
+    <a th:href="@{/api/articles/{id}(id=${person.id})}">글 보기</a>
+</body>
+</html>

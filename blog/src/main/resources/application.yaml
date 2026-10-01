@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: blog
+
+  jpa:
+    # 전송 쿼리 확인
+    show-sql: true
+    # Hibernate가 스키마를 만든 "뒤"에 data.sql을 실행하도록 지연
+    defer-datasource-initialization: true
+    hibernate:
+      # create-drop(시작시 생성, 종료시 삭제)
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  sql:
+    init:
+      # 임베디드(H2) 뿐 아니라 항상 data.sql 실행
+      mode: always
+
+  datasource:
+    #url: jdbc:h2:mem:blogdb
+    url: jdbc:h2:mem:testdb
+    username: sa
+  h2:
+    console:
+      enabled: true
+
+  ai:
+    google:
+      genai:
+        # AI Studio(https://aistudio.google.com/app/apikey) 발급 키. 환경변수로 주입.
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          # 런타임 옵션은 chat.options 아래에 두어야 실제로 적용됩니다.
+          options:
+            model: gemini-3.6-flash
+            temperature: 0.7
+          # 아래 model 키는 일부 버전 호환용(무시돼도 무방)
+          model: gemini-3.6-flash
+        # image 설정은 Spring AI 2.0.0-M1에서 google-genai 이미지 생성을
+        # 지원하지 않아 제거함 (지원 버전이 나오면 다시 추가)
+
+    jwt:
+      issueur: kiyongee2@gmail.com
+      secret_key: study-springboot

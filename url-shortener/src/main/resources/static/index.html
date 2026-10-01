@@ -1,0 +1,217 @@
+ <!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>URL 단축 서비스</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-2: #273449;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-strong: #0ea5e9;
+            --border: #334155;
+            --ok: #34d399;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+            background: radial-gradient(1200px 600px at 50% -10%, #1e293b 0%, var(--bg) 60%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 16px 80px;
+        }
+        .wrap { max-width: 760px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 32px; }
+        header h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.5px; }
+        header p { color: var(--muted); margin: 0; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 30px rgba(0,0,0,.25);
+        }
+        h2 { font-size: 1.05rem; margin: 0 0 16px; color: var(--text); }
+        .row { display: flex; gap: 10px; }
+        input[type=text] {
+            flex: 1;
+            padding: 13px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-2);
+            color: var(--text);
+            font-size: 0.98rem;
+            outline: none;
+        }
+        input[type=text]:focus { border-color: var(--accent); }
+        button {
+            padding: 13px 20px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent-strong);
+            color: #04212f;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform .05s, background .15s;
+            white-space: nowrap;
+        }
+        button:hover { background: var(--accent); }
+        button:active { transform: translateY(1px); }
+        button.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        button.ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 10px;
+            background: var(--card-2);
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .result.show { display: block; }
+        .result a { color: var(--accent); font-weight: 700; text-decoration: none; word-break: break-all; }
+        .result .orig { color: var(--muted); font-size: 0.85rem; margin-top: 6px; word-break: break-all; }
+        .err { color: #fca5a5; font-size: 0.9rem; margin-top: 10px; min-height: 1em; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 600; }
+        td a { color: var(--accent); text-decoration: none; }
+        td.count { font-weight: 700; color: var(--ok); text-align: right; }
+        .muted { color: var(--muted); }
+        .empty { color: var(--muted); text-align: center; padding: 20px 0; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .copy { font-size: 0.78rem; padding: 6px 10px; }
+        .table-scroll { overflow-x: auto; }
+        code { background: #0b1220; padding: 1px 6px; border-radius: 5px; color: var(--accent); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>🔗 URL 단축 서비스</h1>
+        <p>긴 URL을 8글자 키의 짧은 링크로 바꿔 드립니다.</p>
+    </header>
+
+    <div class="card">
+        <h2>URL 단축하기</h2>
+        <div class="row">
+            <input type="text" id="urlInput" placeholder="https://example.com/very/long/path..." autocomplete="off"/>
+            <button id="shortenBtn">단축하기</button>
+        </div>
+        <div class="err" id="shortenErr"></div>
+        <div class="result" id="result">
+            <div>
+                <a href="#" id="resultLink" target="_blank" rel="noopener"></a>
+                <button class="ghost copy" id="copyBtn">복사</button>
+            </div>
+            <div class="orig" id="resultOrig"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <h2 style="margin:0">생성된 단축 URL 목록</h2>
+            <button class="ghost copy" id="refreshBtn">새로고침</button>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>단축 URL</th>
+                    <th>원본 URL</th>
+                    <th style="text-align:right">클릭 수</th>
+                </tr>
+                </thead>
+                <tbody id="urlTableBody">
+                <tr><td colspan="3" class="empty">아직 생성된 단축 URL이 없습니다.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted" style="font-size:0.8rem; margin-top:14px;">
+            단축 링크를 클릭하면 원본으로 이동하며, 이동할 때마다 클릭 수가 증가합니다.
+            목록의 <strong>클릭 수</strong>는 통계 API(<code>GET /api/stats/{key}</code>)로도 조회할 수 있습니다.
+        </p>
+    </div>
+</div>
+
+<script>
+    const $ = (id) => document.getElementById(id);
+
+    async function shorten() {
+        const url = $('urlInput').value.trim();
+        $('shortenErr').textContent = '';
+        if (!url) {
+            $('shortenErr').textContent = 'URL을 입력해 주세요.';
+            return;
+        }
+        try {
+            const res = await fetch('/api/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                $('shortenErr').textContent = data.message || '단축에 실패했습니다.';
+                return;
+            }
+            const link = $('resultLink');
+            link.textContent = data.shortUrl;
+            link.href = data.shortUrl;
+            $('resultOrig').textContent = '→ ' + data.originalUrl;
+            $('result').classList.add('show');
+            $('urlInput').value = '';
+            loadList();
+        } catch (e) {
+            $('shortenErr').textContent = '요청 중 오류가 발생했습니다.';
+        }
+    }
+
+    async function loadList() {
+        try {
+            const res = await fetch('/api/urls');
+            const list = await res.json();
+            const body = $('urlTableBody');
+            if (!list.length) {
+                body.innerHTML = '<tr><td colspan="3" class="empty">아직 생성된 단축 URL이 없습니다.</td></tr>';
+                return;
+            }
+            body.innerHTML = list.map(item => `
+                <tr>
+                    <td><a href="${item.shortUrl}" target="_blank" rel="noopener">/${item.key}</a></td>
+                    <td class="muted">${escapeHtml(item.originalUrl)}</td>
+                    <td class="count">${item.clickCount}</td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            /* 목록 로딩 실패는 조용히 무시 */
+        }
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    $('shortenBtn').addEventListener('click', shorten);
+    $('urlInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') shorten(); });
+    $('refreshBtn').addEventListener('click', loadList);
+    $('copyBtn').addEventListener('click', () => {
+        const text = $('resultLink').textContent;
+        if (text) navigator.clipboard.writeText(text).then(() => {
+            $('copyBtn').textContent = '복사됨!';
+            setTimeout(() => $('copyBtn').textContent = '복사', 1200);
+        });
+    });
+
+    loadList();
+</script>
+</body>
+</html>

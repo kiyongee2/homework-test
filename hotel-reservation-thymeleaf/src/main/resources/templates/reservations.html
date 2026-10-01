@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('예약 목록')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+
+<main class="container">
+    <h1>예약 목록</h1>
+
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>객실</th>
+                <th>투숙객</th>
+                <th>연락처</th>
+                <th>인원</th>
+                <th>체크인</th>
+                <th>체크아웃</th>
+                <th>박</th>
+                <th>상태</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(reservations)}">
+                <td colspan="10" class="empty">예약 내역이 없습니다.</td>
+            </tr>
+            <tr th:each="r : ${reservations}">
+                <td th:text="${r.id}">1</td>
+                <td th:text="${r.room.roomNumber} + '호'">201호</td>
+                <td th:text="${r.guestName}">홍길동</td>
+                <td th:text="${r.guestPhone}">010-1234-5678</td>
+                <td th:text="${r.guestCount} + '인'">2인</td>
+                <td th:text="${r.checkInDate}">2026-10-01</td>
+                <td th:text="${r.checkOutDate}">2026-10-03</td>
+                <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(r.checkInDate, r.checkOutDate)}">2</td>
+                <td>
+                    <span class="status" th:classappend="${r.status.name() == 'RESERVED'} ? 'status-reserved' : 'status-cancelled'"
+                          th:text="${r.status.name() == 'RESERVED'} ? '예약중' : '취소됨'">예약중</span>
+                </td>
+                <td class="right nowrap">
+                    <a class="btn btn-sm btn-ghost" th:href="@{/reservations/{id}(id=${r.id})}">상세</a>
+                    <form th:if="${r.status.name() == 'RESERVED'}" method="post"
+                          th:action="@{/reservations/{id}/cancel(id=${r.id})}" style="display:inline"
+                          onsubmit="return confirm('예약을 취소하시겠습니까?');">
+                        <button type="submit" class="btn btn-sm btn-danger">취소</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/reservations/new}" class="btn">새 예약</a>
+    </div>
+</main>
+</body>
+</html>

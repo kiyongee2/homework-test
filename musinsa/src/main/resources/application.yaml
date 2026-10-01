@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: musinsa
+
+  # H2 인메모리 데이터베이스
+  datasource:
+    url: jdbc:h2:mem:musinsadb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # JPA / Hibernate
+  jpa:
+    hibernate:
+      # create-drop(시작시 생성, 종료시 삭제)
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # H2 콘솔 (http://localhost:8080/h2-console)
+  h2:
+    console:
+      enabled: true

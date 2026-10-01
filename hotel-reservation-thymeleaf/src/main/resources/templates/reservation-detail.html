@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('예약 상세')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+
+<main class="container narrow">
+    <h1>예약 상세</h1>
+
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="card detail">
+        <div class="detail-row">
+            <span class="label">예약 번호</span>
+            <span th:text="${reservation.id}">1</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">상태</span>
+            <span class="status" th:classappend="${reservation.status.name() == 'RESERVED'} ? 'status-reserved' : 'status-cancelled'"
+                  th:text="${reservation.status.name() == 'RESERVED'} ? '예약중' : '취소됨'">예약중</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">객실</span>
+            <span th:text="${reservation.room.roomNumber} + '호 · ' + ${reservation.room.type.displayName}">201호 · 더블</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">투숙객</span>
+            <span th:text="${reservation.guestName}">홍길동</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">연락처</span>
+            <span th:text="${reservation.guestPhone}">010-1234-5678</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">투숙 인원</span>
+            <span th:text="${reservation.guestCount} + '인'">2인</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">체크인</span>
+            <span th:text="${reservation.checkInDate}">2026-10-01</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">체크아웃</span>
+            <span th:text="${reservation.checkOutDate}">2026-10-03</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/reservations}" class="btn btn-ghost">목록으로</a>
+        <form th:if="${reservation.status.name() == 'RESERVED'}" method="post"
+              th:action="@{/reservations/{id}/cancel(id=${reservation.id})}"
+              onsubmit="return confirm('예약을 취소하시겠습니까?');">
+            <button type="submit" class="btn btn-danger">예약 취소</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

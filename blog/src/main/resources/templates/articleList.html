@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>블로그 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+<body>
+    <div class="p-5 mb-5 text-center bg-light">
+        <h1 class="mb-3">My Blog</h1>
+        <h4 class="mb-3">블로그에 오신 것을 환영합니다.</h4>
+    </div>
+
+    <div class="container">
+        <button type="button" id="create-btn"
+                th:onclick="|location.href='@{/new-article}'|"
+                class="btn btn-secondary btn-sm mb-3">글 등록</button>
+        <div class="row row-cols-1 g-4">
+            <div class="col" th:each="item : ${articles}">
+                <div class="card h-100">
+                    <div class="card-header" th:text="${item.id}"></div>
+                    <img th:if="${item.imageUrl != null and item.imageUrl != ''}"
+                         th:src="${item.imageUrl}"
+                         class="card-img-top"
+                         alt="게시글 이미지"
+                         style="max-length: 300px; object-fit: ccover;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${item.title}"></h5>
+                        <p class="card-text" th:text="${item.content}"></p>
+                        <a th:href="@{/articles/{id}(id=${item.id})}"
+                           class="btn btn-primary">보러 가기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-secondary mt-3"
+                onclick="location.href='/logout'">로그아웃</button>
+    </div>
+    <script src="/js/article.js"></script>
+</body>
+</html>

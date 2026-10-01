@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">호텔 예약</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<header th:fragment="nav" class="nav">
+    <div class="nav-inner">
+        <a class="brand" th:href="@{/}">🏨 호텔 예약</a>
+        <nav>
+            <a th:href="@{/rooms}">객실 조회</a>
+            <a th:href="@{/reservations/new}">예약하기</a>
+            <a th:href="@{/reservations}">예약 목록</a>
+        </nav>
+    </div>
+</header>
+
+<!-- 플래시/오류 메시지 -->
+<div th:fragment="alerts" class="alerts">
+    <div class="alert alert-success" th:if="${message}" th:text="${message}"></div>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+</body>
+</html>

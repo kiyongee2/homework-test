@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('예약하기')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+
+<main class="container narrow">
+    <h1>예약하기</h1>
+
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <form class="card" method="post" th:action="@{/reservations}" th:object="${form}">
+        <div class="field">
+            <label>객실</label>
+            <select th:field="*{roomId}">
+                <option value="" th:if="${form.roomId == null}">객실을 선택하세요</option>
+                <option th:each="room : ${rooms}"
+                        th:value="${room.id}"
+                        th:text="${room.roomNumber} + '호 · ' + ${room.type.displayName} + ' · 정원 ' + ${room.capacity} + '인'">
+                    201호
+                </option>
+            </select>
+            <span class="field-error" th:if="${#fields.hasErrors('roomId')}" th:errors="*{roomId}"></span>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>체크인</label>
+                <input type="date" th:field="*{checkInDate}"/>
+                <span class="field-error" th:if="${#fields.hasErrors('checkInDate')}" th:errors="*{checkInDate}"></span>
+            </div>
+            <div class="field">
+                <label>체크아웃</label>
+                <input type="date" th:field="*{checkOutDate}"/>
+                <span class="field-error" th:if="${#fields.hasErrors('checkOutDate')}" th:errors="*{checkOutDate}"></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>투숙객 이름</label>
+            <input type="text" th:field="*{guestName}" placeholder="홍길동"/>
+            <span class="field-error" th:if="${#fields.hasErrors('guestName')}" th:errors="*{guestName}"></span>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>연락처</label>
+                <input type="text" th:field="*{guestPhone}" placeholder="010-1234-5678"/>
+                <span class="field-error" th:if="${#fields.hasErrors('guestPhone')}" th:errors="*{guestPhone}"></span>
+            </div>
+            <div class="field">
+                <label>투숙 인원</label>
+                <input type="number" th:field="*{guestCount}" min="1"/>
+                <span class="field-error" th:if="${#fields.hasErrors('guestCount')}" th:errors="*{guestCount}"></span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn">예약 완료</button>
+            <a th:href="@{/rooms}" class="btn btn-ghost">취소</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
